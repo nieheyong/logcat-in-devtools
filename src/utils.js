@@ -1,5 +1,6 @@
 const { execSync } = require("child_process");
 const { appLog } = require('./stdio');
+const chalk = require("chalk");
 
 function checkAdbDevice() {
   const outputText = execSync("adb devices", { encoding: "utf8" });

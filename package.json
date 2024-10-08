@@ -1,6 +1,6 @@
 {
   "name": "logcat-in-devtools",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "view android adb logcat logs in chrome devtools console",
   "bin": "src/index.js",
   "keywords": [],
