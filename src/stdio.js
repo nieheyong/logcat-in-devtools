@@ -1,3 +1,5 @@
+const readline = require('readline');
+
 const originalStdoutWrite = process.stdout.write;
 const originalStderrWrite = process.stderr.write;
 
@@ -28,9 +30,39 @@ function vmLog(type, ...args) {
 }
 eval(vmLog.toString());
 
+function listenForKeypress(shortcuts) {
+  readline.emitKeypressEvents(process.stdin);
+  process.stdin.setRawMode(true);
+
+  process.stdin.on('keypress', (str, key) => {
+    shortcuts.forEach(shortcut => {
+      const { ctrl, shift, name, action } = shortcut;
+
+      if (
+        (ctrl === undefined || key.ctrl === ctrl) &&
+        (shift === undefined || key.shift === shift) &&
+        key.name === name
+      ) {
+        action();
+      }
+    });
+
+    if (key.ctrl && key.name === 'c') {
+      exitProcess()
+    }
+  });
+}
+
+function exitProcess(code) {
+  process.stdin.setRawMode(false);
+  process.exit(code);
+}
+
 module.exports = {
   vmLog,
   appLogError,
   muteStdio,
   appLog,
+  listenForKeypress,
+  exitProcess
 }

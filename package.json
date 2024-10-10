@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.7.4"
-  }
+  },
+  "files": [
+    "src"
+  ]
 }
