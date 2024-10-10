@@ -73,7 +73,7 @@ const ADB_LOG_REGEX = /^([0-9-]+\s[0-9:.]+\s+\d+\s+\d+)\s+([A-Z])\s+(.*)$/;
 
 const LogcatStyle = {
   V: {
-    consoleType: "log",
+    consoleType: "debug",
     textColor: "#BBBBBB",
     indicator: {
       textColor: "#000000",
