@@ -2,20 +2,16 @@
 const inspector = require("inspector");
 const chalk = require("chalk");
 const packageJson = require("../package.json");
-const { checkAdbDevice, listenAdbLogCat } = require('./adb');
+const { checkAdbDevice, listenAdbLogCat, styleLogcatLine } = require('./adb');
 const { muteStdio, vmLog, appLog, appLogError, listenForKeypress } = require("./stdio");
 const { openInChrome } = require('./utils');
 
 let logPattern = null;
 
 function processAdbLogLine(log) {
-  if (logPattern) {
-    if (logPattern.test(log)) {
-      vmLog("log", log);
-    }
-  } else {
-    vmLog("log", log);
-  }
+  if (logPattern && !logPattern.test(log)) return
+  const [level, content] = styleLogcatLine(log);
+  vmLog(level, content);
 }
 
 function showInspectTips() {

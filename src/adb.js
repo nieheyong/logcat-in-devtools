@@ -67,8 +67,90 @@ function listenAdbLogCat(onLogCallback) {
   });
 }
 
+// match adb logcat output
+// 10-07 20:47:49.742 25891 26835 D logMessage
+const ADB_LOG_REGEX = /^([0-9-]+\s[0-9:.]+\s+\d+\s+\d+)\s+([A-Z])\s+(.*)$/;
+
+const LogcatStyle = {
+  V: {
+    consoleType: "log",
+    textColor: "#BBBBBB",
+    indicator: {
+      textColor: "#000000",
+      bgColor: "#D6D6D6",
+    },
+  },
+  D: {
+    consoleType: "debug",
+    textColor: "#299999",
+    indicator: {
+      textColor: "#BBBBBB",
+      bgColor: "#305D78",
+    },
+  },
+  I: {
+    consoleType: "info",
+    textColor: "#ABC023",
+    indicator: {
+      textColor: "#E9F5E6",
+      bgColor: "#6A8759",
+    },
+  },
+  W: {
+    consoleType: "warn",
+    textColor: "#BBB529",
+    indicator: {
+      textColor: "#000000",
+      bgColor: "#BBB529",
+    },
+  },
+  E: {
+    consoleType: "error",
+    textColor: "#FF6B68",
+    indicator: {
+      textColor: "#000000",
+      bgColor: "#CF5B56",
+    },
+  },
+  A: {
+    consoleType: "error",
+    textColor: "#FF6B68",
+    indicator: {
+      textColor: "#FFFFFF",
+      bgColor: "#8B3C3C",
+    },
+  },
+}
+
+const LogcatChalkStyle = new Map()
+Object.entries(LogcatStyle).forEach(([level, style]) => {
+  LogcatChalkStyle.set(level, {
+    consoleType: style.consoleType,
+    indicatorStyle: chalk.bgHex(style.indicator.bgColor).hex(style.indicator.textColor),
+    textStyle: chalk.hex(style.textColor),
+  })
+})
+
+console.log(LogcatChalkStyle);
+const grayTime = chalk.gray;
+
+function styleLogcatLine(logLine) {
+  const match = logLine.match(ADB_LOG_REGEX);
+  if (match && match.length > 3) {
+    const [, info, level, message] = match;
+    const style = LogcatChalkStyle.get(level);
+    if (style) {
+      const content = `${grayTime(info)} ${style.indicatorStyle(` ${level} `)} ${style.textStyle(message)}`;
+      return [style.consoleType, content];
+    }
+    return ['log', logLine]
+  }
+  return ['log', logLine]
+}
+
 
 module.exports = {
   checkAdbDevice,
+  styleLogcatLine,
   listenAdbLogCat
 }
