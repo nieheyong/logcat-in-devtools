@@ -131,7 +131,6 @@ Object.entries(LogcatStyle).forEach(([level, style]) => {
   })
 })
 
-console.log(LogcatChalkStyle);
 const grayTime = chalk.gray;
 
 function styleLogcatLine(logLine) {
