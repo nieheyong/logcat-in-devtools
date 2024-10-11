@@ -2,6 +2,10 @@
 
 View android adb logcat logs in chrome devtools console
 
+## Screenshot
+
+![image](https://github.com/user-attachments/assets/eca5609d-b8cf-49cf-a234-76f028147030)
+
 ## Prerequisites
 
 - Android adb should be installed and available in PATH and
@@ -28,9 +32,3 @@ Options:
   -s, --serial <SERIAL>  use device with given serial (overrides $ANDROID_SERIAL)
   -h, --help             display help for command
 ```
-
-
-## Screenshot
-![image](https://github.com/user-attachments/assets/eca5609d-b8cf-49cf-a234-76f028147030)
-![image](https://github.com/user-attachments/assets/4c7e84ce-13ac-45ac-a027-dee4e2ad4cf0)
-
