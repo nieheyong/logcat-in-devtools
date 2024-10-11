@@ -4,14 +4,31 @@ View android adb logcat logs in chrome devtools console
 
 ## Prerequisites
 
-Android adb should be installed and available in PATH
+- Android adb should be installed and available in PATH and
+- Connect adb device to computer
 
 ## Usage
 
-1. connect adb device to computer
-2. run `npx logcat-in-devtools@latest`
-3. Visit `chrome://inspect` page in Chrome or Edge browser
-4. Inspect `logcat-in-devtools` node process to view adb logs
+```shell
+npx logcat-in-devtools@latest
+```
+
+### Options
+
+```
+$ npx logcat-in-devtools@latest --help
+
+Usage: logcat-in-devtools [options]
+
+View android adb logcat logs in chrome devtools console
+
+Options:
+  -V, --version          output the version number
+  -m, --match <RegExp>   only print messages that match RegExp
+  -s, --serial <SERIAL>  use device with given serial (overrides $ANDROID_SERIAL)
+  -h, --help             display help for command
+```
+
 
 ## Screenshot
 ![image](https://github.com/user-attachments/assets/eca5609d-b8cf-49cf-a234-76f028147030)
