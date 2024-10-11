@@ -1,16 +1,27 @@
 {
   "name": "logcat-in-devtools",
-  "version": "0.1.2",
-  "description": "view android adb logcat logs in chrome devtools console",
+  "version": "0.1.3",
+  "description": "View android adb logcat logs in chrome devtools console",
+  "homepage": "https://github.com/nieheyong/logcat-in-devtools.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nieheyong/logcat-in-devtools.git"
+  },
   "bin": "src/index.js",
-  "keywords": [],
+  "keywords": [
+    "logcat",
+    "logcat viewer",
+    "adb",
+    "devtools"
+  ],
   "author": "niehey@163.com",
   "license": "MIT",
   "scripts": {
     "start": "npx ."
   },
   "dependencies": {
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.4"

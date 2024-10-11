@@ -2,7 +2,7 @@ const { spawn, execSync } = require("child_process");
 const { appLog, appLogError, exitProcess } = require('./stdio');
 const chalk = require("chalk");
 
-function checkAdbDevice() {
+function checkAdbDevice(serial) {
   const outputText = execSync("adb devices", { encoding: "utf8" });
   const outputLines = outputText.trim().split("\n");
   appLog(`\n$ adb devices\n${outputText.trim()}\n `);
@@ -19,7 +19,15 @@ function checkAdbDevice() {
     exitProcess(1);
   }
 
-  if (process.env.ANDROID_SERIAL) {
+  if (serial) {
+    const exist = validDevices.find((device) => serial === device.split('\t')[0]);
+    if (!exist) {
+      appLog(chalk.red
+        (`The device with serial ${serial} not connected.\n`)
+      );
+      exitProcess(1);
+    }
+  } else if (process.env.ANDROID_SERIAL) {
     appLog(`Environment Variable ${chalk.yellow('ANDROID_SERIAL')}: ${process.env.ANDROID_SERIAL}`);
     const exist = validDevices.find((device) => process.env.ANDROID_SERIAL === device.split('\t')[0]);
     if (!exist) {
@@ -32,7 +40,7 @@ Please check the device serial or unset the ${chalk.yellow("ANDROID_SERIAL")} en
   } else if (devices.length > 1) {
     appLog(
       `Multiple adb devices detected, will use the first device.\n` +
-      `You can also set the ${chalk.yellow("ANDROID_SERIAL")} env to specify device`
+      `You can also use --serial <SERIAL> to specify device`
     );
     const [firstDevice] = validDevices[0].split("\t");
     appLog(chalk.green(`Using adb device: ${firstDevice}`));
@@ -40,11 +48,14 @@ Please check the device serial or unset the ${chalk.yellow("ANDROID_SERIAL")} en
   }
 }
 
-function listenAdbLogCat(onLogCallback) {
-  // clear logcat buffer
-  execSync("adb logcat -c");
+function listenAdbLogCat(params) {
+  const { onLog, serial } = params;
 
-  const adbProcess = spawn("adb", ["logcat"]);
+  // clear logcat buffer
+  execSync(`adb${serial ? ` -s ${serial}` : ''} logcat -c`);
+
+  const extraArgs = serial ? ['-s', serial] : []
+  const adbProcess = spawn("adb", [...extraArgs, 'logcat']);
 
   let leftover = "";
   adbProcess.stdout.on("data", (data) => {
@@ -53,7 +64,7 @@ function listenAdbLogCat(onLogCallback) {
     const lines = fullChunk.split("\n");
     leftover = lines.pop();
 
-    lines.forEach(onLogCallback);
+    lines.forEach(onLog);
   });
 
   adbProcess.stderr.on("data", (data) => {

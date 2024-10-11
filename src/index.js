@@ -1,6 +1,8 @@
 #!/usr/bin/env node --inspect
 const inspector = require("inspector");
 const chalk = require("chalk");
+const { program } = require('commander');
+
 const packageJson = require("../package.json");
 const { checkAdbDevice, listenAdbLogCat, styleLogcatLine } = require('./adb');
 const { muteStdio, vmLog, appLog, appLogError, listenForKeypress } = require("./stdio");
@@ -41,14 +43,14 @@ function showInspectTips() {
   ]);
 }
 
-function run() {
+function run(cliOptions) {
   muteStdio()
   appLog(`\n${chalk.yellow(packageJson.name)}@${packageJson.version}\n `);
-  checkAdbDevice();
+  checkAdbDevice(cliOptions.serial);
 
-  if (process.env.LOG_PATTERN) {
-    logPattern = new RegExp(process.env.LOG_PATTERN);
-    appLog(`Detect LOG_PATTERN: ${chalk.yellow(process.env.LOG_PATTERN)}\nJavascript RegExp:`, logPattern);
+  if (cliOptions.match) {
+    logPattern = new RegExp(cliOptions.match);
+    appLog(`Detect match: ${chalk.yellow(cliOptions.match)}\nJavascript RegExp:`, logPattern);
   }
 
   if (!process.features.inspector) {
@@ -58,6 +60,22 @@ function run() {
 
   showInspectTips();
 
-  listenAdbLogCat(processAdbLogLine);
+  listenAdbLogCat({
+    serial: cliOptions.serial,
+    onLog: processAdbLogLine
+  });
 }
-run();
+
+
+console.log('')
+program
+  .name(packageJson.name)
+  .description(packageJson.description)
+  .version(packageJson.version);
+
+program
+  .option('-m, --match <RegExp>', 'only print messages that match RegExp')
+  .option('-s, --serial <SERIAL>', 'use device with given serial (overrides $ANDROID_SERIAL)')
+  .action((options) => {
+    run(options);
+  }).parse();
