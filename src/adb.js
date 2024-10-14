@@ -1,5 +1,6 @@
 const { spawn, execSync } = require("child_process");
 const { appLog, appLogError, exitProcess } = require('./stdio');
+const os = require('os');
 const chalk = require("chalk");
 
 function checkAdbDevice(serial) {
@@ -61,7 +62,7 @@ function listenAdbLogCat(params) {
   adbProcess.stdout.on("data", (data) => {
     const chunk = data.toString();
     const fullChunk = leftover + chunk;
-    const lines = fullChunk.split("\n");
+    const lines = fullChunk.split(os.EOL);
     leftover = lines.pop();
 
     lines.forEach(onLog);

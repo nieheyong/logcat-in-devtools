@@ -1,4 +1,3 @@
-#!/usr/bin/env node --inspect
 const inspector = require("inspector");
 const chalk = require("chalk");
 const { program } = require('commander');
@@ -17,30 +16,34 @@ function processAdbLogLine(log) {
 }
 
 function showInspectTips() {
+  const shortcutOpen = process.platform !== 'win32'
+
   const inspectUrl = `devtools://devtools/bundled/js_app.html?ws=${encodeURIComponent(inspector.url().replace('ws://', ''))}`
 
   const tips = `🎉🎉🎉 ${chalk.green('Success!')}\n\nThere are 2 methods to view log: 
-  A. [${chalk.yellow('Ctrl+a')}] Visit ${chalk.blue("chrome://inspect")} page in Chrome and inspect Target ${chalk.yellow(packageJson.name)} to view logs
-  B. [${chalk.yellow('Ctrl+b')}] Open ${chalk.blue(inspectUrl)} in chrome view logs\n`;
+  A.${shortcutOpen ? ` [${chalk.yellow('Ctrl+a')}]` : ''} Visit ${chalk.blue("chrome://inspect")} page in Chrome and inspect Target ${chalk.yellow(packageJson.name)} to view logs
+  B.${shortcutOpen ? ` [${chalk.yellow('Ctrl+b')}]` : ''} Open ${chalk.blue(inspectUrl)} in chrome view logs\n`;
 
   appLog(tips);
-
-  listenForKeypress([
-    {
-      ctrl: true,
-      name: 'a',
-      action: () => {
-        openInChrome('chrome://inspect');
-      }
-    },
-    {
-      ctrl: true,
-      name: 'b',
-      action: () => {
-        openInChrome(inspectUrl);
+  if (shortcutOpen) {
+    listenForKeypress([
+      {
+        ctrl: true,
+        name: 'a',
+        action: () => {
+          openInChrome('chrome://inspect');
+        }
       },
-    }
-  ]);
+      {
+        ctrl: true,
+        name: 'b',
+        action: () => {
+          openInChrome(inspectUrl);
+        },
+      }
+    ]);
+  }
+
 }
 
 function run(cliOptions) {
