@@ -8,8 +8,15 @@ View android adb logcat logs in chrome devtools console
 
 ## Prerequisites
 
-- Android adb should be installed and available in PATH and
-- Connect adb device to computer
+- [Android Debug Bridge (adb)](https://developer.android.com/tools/adb) should be installed and available in PATH and
+  - If not [Download here](https://developer.android.com/tools/releases/platform-tools#downloads)
+- `adb devices` should success list the connected device
+
+  ```shell
+  $ adb devices
+  List of devices attached
+  DEVICE_SERIAL_xxxx     device
+  ```
 
 ## Usage
 
