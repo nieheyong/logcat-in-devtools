@@ -2,6 +2,8 @@
 
 View android adb logcat logs in chrome devtools console
 
+<a href="https://npmjs.com/package/logcat-in-devtools"><img src="https://img.shields.io/npm/v/logcat-in-devtools.svg" alt="npm package"></a>
+
 ## Screenshot
 
 ![image](https://github.com/user-attachments/assets/eca5609d-b8cf-49cf-a234-76f028147030)
