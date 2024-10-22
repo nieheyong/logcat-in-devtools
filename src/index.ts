@@ -10,17 +10,34 @@ import {
   appLogError,
   listenForKeypress,
   exitProcess,
+  stdWrite,
 } from "./stdio";
 import { openInChrome } from "./utils";
 
 const packageJson = require("../package.json");
 
 let logPattern: RegExp | null = null;
+let printDisable = false;
 
 function processAdbLogLine(log: string) {
+  if (printDisable) return;
+
   if (logPattern && !logPattern.test(log)) return;
   const [level, content] = styleLogcatLine(log);
   vmLog(level, content);
+}
+
+function togglePrint() {
+  printDisable = !printDisable;
+  const statusText = `${printDisable ? "Stopped 🔴" : "Running 🟢"}`;
+  stdWrite(
+    `${statusText} Press ${chalk.yellow("s")} to ${
+      printDisable ? "start" : "stop"
+    }\n`
+  );
+
+  // log in devtools console
+  console.log(statusText);
 }
 
 function showInspectTips() {
@@ -29,17 +46,21 @@ function showInspectTips() {
   const ws = encodeURIComponent(inspector.url()?.replace("ws://", "") || "");
   const inspectUrl = `devtools://devtools/bundled/js_app.html?ws=${ws}`;
 
-  const tips = `🎉🎉🎉 ${chalk.green(
-    "Success!"
-  )}\n\nThere are 2 methods to view log: 
-  A.${shortcutOpen ? ` [${chalk.yellow("Ctrl+a")}]` : ""} Visit ${chalk.blue(
-    "chrome://inspect"
-  )} page in Chrome and inspect Target ${chalk.yellow(
-    packageJson.name
-  )} to view logs
-  B.${shortcutOpen ? ` [${chalk.yellow("Ctrl+b")}]` : ""} Open ${chalk.blue(
-    inspectUrl
-  )} in chrome view logs\n`;
+  const tips =
+    `🎉🎉🎉 ${chalk.green("Success!")}\n\n` +
+    `There are 2 methods to view log: \n` +
+    `  A.${
+      shortcutOpen ? ` [${chalk.yellow("Ctrl+a")}]` : ""
+    } Visit ${chalk.blue(
+      "chrome://inspect"
+    )} page in Chrome and inspect Target ${chalk.yellow(
+      packageJson.name
+    )} to view logs\n` +
+    `  B.${
+      shortcutOpen ? ` [${chalk.yellow("Ctrl+b")}]` : ""
+    } Open ${chalk.blue(inspectUrl)} in chrome view logs\n\nRunning 🟢 Press ` +
+    chalk.yellow("s") +
+    ` to stop print log\n\n`;
 
   appLog(tips);
   if (shortcutOpen) {
@@ -58,11 +79,15 @@ function showInspectTips() {
           openInChrome(inspectUrl);
         },
       },
+      {
+        name: "s",
+        action: togglePrint,
+      },
     ]);
   }
 }
 
-function run(cliOptions: any) {
+function run(cliOptions: CliOptions) {
   muteStdio();
   appLog(`\n${chalk.yellow(packageJson.name)}@${packageJson.version}\n `);
   checkAdbDevice(cliOptions.serial);
@@ -83,6 +108,7 @@ function run(cliOptions: any) {
   showInspectTips();
 
   listenAdbLogCat({
+    cleanBuffer: cliOptions.clean,
     serial: cliOptions.serial,
     onLog: processAdbLogLine,
   });
@@ -94,13 +120,20 @@ program
   .description(packageJson.description)
   .version(packageJson.version);
 
+interface CliOptions {
+  clean: boolean;
+  match: string;
+  serial: string;
+}
+
 program
+  .option("-c, --clean", "clean logcat buffer before start")
   .option("-m, --match <RegExp>", "only print messages that match RegExp")
   .option(
     "-s, --serial <SERIAL>",
     "use device with given serial (overrides $ANDROID_SERIAL)"
   )
-  .action((options) => {
+  .action((options: CliOptions) => {
     run(options);
   })
   .parse();

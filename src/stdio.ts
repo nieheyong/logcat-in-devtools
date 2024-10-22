@@ -1,7 +1,7 @@
 import readline from "readline";
 
-const originalStdoutWrite = process.stdout.write;
-const originalStderrWrite = process.stderr.write;
+export const stdWrite = process.stdout.write.bind(process.stdout);
+export const stderrWrite = process.stderr.write.bind(process.stderr);
 
 export function muteStdio() {
   process.stdout.write = () => true;
@@ -9,17 +9,17 @@ export function muteStdio() {
 }
 
 function restoreStdio() {
-  process.stdout.write = originalStdoutWrite;
-  process.stderr.write = originalStderrWrite;
+  process.stdout.write = stdWrite;
+  process.stderr.write = stderrWrite;
 }
 
-export function appLog(...args: any[]) {
+export function appLog(...args: any) {
   restoreStdio();
   console.log(...args);
   muteStdio();
 }
 
-export function appLogError(...args: any[]) {
+export function appLogError(...args: any) {
   restoreStdio();
   console.error(...args);
   muteStdio();

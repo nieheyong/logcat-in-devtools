@@ -59,7 +59,11 @@ Please check the device serial or unset the ${chalk.yellow(
   }
 }
 
-export function listenAdbLogCat(params: any) {
+export function listenAdbLogCat(params: {
+  onLog: (line: string) => void;
+  serial: string;
+  cleanBuffer: boolean;
+}) {
   const { onLog, serial, cleanBuffer } = params;
 
   if (cleanBuffer) {
