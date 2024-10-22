@@ -17,16 +17,19 @@
   "author": "niehey@163.com",
   "license": "MIT",
   "scripts": {
-    "start": "npx ."
+    "start": "tsc && npx .",
+    "build": "rm -rf dist && tsc"
   },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^11.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.7.4"
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.3"
   },
   "files": [
-    "src"
+    "src",
+    "dist"
   ]
 }

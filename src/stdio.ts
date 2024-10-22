@@ -1,11 +1,11 @@
-const readline = require('readline');
+import readline from "readline";
 
 const originalStdoutWrite = process.stdout.write;
 const originalStderrWrite = process.stderr.write;
 
-function muteStdio() {
-  process.stdout.write = () => { };
-  process.stderr.write = () => { };
+export function muteStdio() {
+  process.stdout.write = () => true;
+  process.stderr.write = () => true;
 }
 
 function restoreStdio() {
@@ -13,29 +13,30 @@ function restoreStdio() {
   process.stderr.write = originalStderrWrite;
 }
 
-function appLog(...args) {
+export function appLog(...args: any[]) {
   restoreStdio();
   console.log(...args);
   muteStdio();
 }
 
-function appLogError(...args) {
+export function appLogError(...args: any[]) {
   restoreStdio();
   console.error(...args);
   muteStdio();
 }
 
-function vmLog(type, ...args) {
+export function vmLog(type: any, ...args: any[]) {
+  // @ts-ignore
   console[type](...args);
 }
 eval(vmLog.toString());
 
-function listenForKeypress(shortcuts) {
+export function listenForKeypress(shortcuts: any) {
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);
 
-  process.stdin.on('keypress', (str, key) => {
-    shortcuts.forEach(shortcut => {
+  process.stdin.on("keypress", (str, key) => {
+    shortcuts.forEach((shortcut: any) => {
       const { ctrl, shift, name, action } = shortcut;
 
       if (
@@ -47,22 +48,13 @@ function listenForKeypress(shortcuts) {
       }
     });
 
-    if (key.ctrl && key.name === 'c') {
-      exitProcess()
+    if (key.ctrl && key.name === "c") {
+      exitProcess();
     }
   });
 }
 
-function exitProcess(code) {
+export function exitProcess(code?: number) {
   process.stdin.setRawMode(false);
   process.exit(code);
-}
-
-module.exports = {
-  vmLog,
-  appLogError,
-  muteStdio,
-  appLog,
-  listenForKeypress,
-  exitProcess
 }

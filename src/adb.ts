@@ -1,9 +1,9 @@
-const { spawn, execSync } = require("child_process");
-const { appLog, appLogError, exitProcess } = require('./stdio');
-const os = require('os');
-const chalk = require("chalk");
+import { spawn, execSync } from "child_process";
+import { appLog, appLogError, exitProcess } from "./stdio";
+import os from "os";
+import chalk from "chalk";
 
-function checkAdbDevice(serial) {
+export function checkAdbDevice(serial: string) {
   const outputText = execSync("adb devices", { encoding: "utf8" });
   const outputLines = outputText.trim().split("\n");
   appLog(`\n$ adb devices\n${outputText.trim()}\n `);
@@ -21,27 +21,37 @@ function checkAdbDevice(serial) {
   }
 
   if (serial) {
-    const exist = validDevices.find((device) => serial === device.split('\t')[0]);
+    const exist = validDevices.find(
+      (device) => serial === device.split("\t")[0]
+    );
     if (!exist) {
-      appLog(chalk.red
-        (`The device with serial ${serial} not connected.\n`)
-      );
+      appLog(chalk.red(`The device with serial ${serial} not connected.\n`));
       exitProcess(1);
     }
   } else if (process.env.ANDROID_SERIAL) {
-    appLog(`Environment Variable ${chalk.yellow('ANDROID_SERIAL')}: ${process.env.ANDROID_SERIAL}`);
-    const exist = validDevices.find((device) => process.env.ANDROID_SERIAL === device.split('\t')[0]);
+    appLog(
+      `Environment Variable ${chalk.yellow("ANDROID_SERIAL")}: ${
+        process.env.ANDROID_SERIAL
+      }`
+    );
+    const exist = validDevices.find(
+      (device) => process.env.ANDROID_SERIAL === device.split("\t")[0]
+    );
     if (!exist) {
-      appLog(chalk.red
-        (`The device with serial ${process.env.ANDROID_SERIAL} is not connected.
-Please check the device serial or unset the ${chalk.yellow("ANDROID_SERIAL")} env`)
+      appLog(
+        chalk.red(`The device with serial ${
+          process.env.ANDROID_SERIAL
+        } is not connected.
+Please check the device serial or unset the ${chalk.yellow(
+          "ANDROID_SERIAL"
+        )} env`)
       );
       exitProcess(1);
     }
   } else if (devices.length > 1) {
     appLog(
       `Multiple adb devices detected, will use the first device.\n` +
-      `You can also use --serial <SERIAL> to specify device`
+        `You can also use --serial <SERIAL> to specify device`
     );
     const [firstDevice] = validDevices[0].split("\t");
     appLog(chalk.green(`Using adb device: ${firstDevice}`));
@@ -49,21 +59,22 @@ Please check the device serial or unset the ${chalk.yellow("ANDROID_SERIAL")} en
   }
 }
 
-function listenAdbLogCat(params) {
-  const { onLog, serial } = params;
+export function listenAdbLogCat(params: any) {
+  const { onLog, serial, cleanBuffer } = params;
 
-  // clear logcat buffer
-  execSync(`adb${serial ? ` -s ${serial}` : ''} logcat -c`);
+  if (cleanBuffer) {
+    execSync(`adb${serial ? ` -s ${serial}` : ""} logcat -c`);
+  }
 
-  const extraArgs = serial ? ['-s', serial] : []
-  const adbProcess = spawn("adb", [...extraArgs, 'logcat']);
+  const extraArgs = serial ? ["-s", serial] : [];
+  const adbProcess = spawn("adb", [...extraArgs, "logcat"]);
 
   let leftover = "";
   adbProcess.stdout.on("data", (data) => {
     const chunk = data.toString();
     const fullChunk = leftover + chunk;
     const lines = fullChunk.split(os.EOL);
-    leftover = lines.pop();
+    leftover = lines.pop()!;
 
     lines.forEach(onLog);
   });
@@ -132,36 +143,33 @@ const LogcatStyle = {
       bgColor: "#8B3C3C",
     },
   },
-}
+};
 
-const LogcatChalkStyle = new Map()
+const LogcatChalkStyle = new Map();
 Object.entries(LogcatStyle).forEach(([level, style]) => {
   LogcatChalkStyle.set(level, {
     consoleType: style.consoleType,
-    indicatorStyle: chalk.bgHex(style.indicator.bgColor).hex(style.indicator.textColor),
+    indicatorStyle: chalk
+      .bgHex(style.indicator.bgColor)
+      .hex(style.indicator.textColor),
     textStyle: chalk.hex(style.textColor),
-  })
-})
+  });
+});
 
 const grayTime = chalk.gray;
 
-function styleLogcatLine(logLine) {
+export function styleLogcatLine(logLine: string) {
   const match = logLine.match(ADB_LOG_REGEX);
   if (match && match.length > 3) {
     const [, info, level, message] = match;
     const style = LogcatChalkStyle.get(level);
     if (style) {
-      const content = `${grayTime(info)} ${style.indicatorStyle(` ${level} `)} ${style.textStyle(message)}`;
+      const content = `${grayTime(info)} ${style.indicatorStyle(
+        ` ${level} `
+      )} ${style.textStyle(message)}`;
       return [style.consoleType, content];
     }
-    return ['log', logLine]
+    return ["log", logLine];
   }
-  return ['log', logLine]
-}
-
-
-module.exports = {
-  checkAdbDevice,
-  styleLogcatLine,
-  listenAdbLogCat
+  return ["log", logLine];
 }
