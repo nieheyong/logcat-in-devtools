@@ -25,11 +25,10 @@ export function appLogError(...args: any) {
   muteStdio();
 }
 
-export function vmLog(type: any, ...args: any[]) {
-  // @ts-ignore
-  console[type](...args);
-}
-eval(vmLog.toString());
+// @ts-ignore
+const _vmLog = (type: any, ...args: any[]) => console[type](...args);
+
+export const vmLog = eval(`(${_vmLog.toString()})`);
 
 export function listenForKeypress(shortcuts: any) {
   readline.emitKeypressEvents(process.stdin);
