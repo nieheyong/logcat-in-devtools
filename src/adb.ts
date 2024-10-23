@@ -1,12 +1,12 @@
 import { spawn, execSync } from "child_process";
-import { appLog, appLogError, exitProcess } from "./stdio";
+import { exitProcess, stdWrite } from "./stdio";
 import os from "os";
 import chalk from "chalk";
 
 export function checkAdbDevice(serial: string) {
   const outputText = execSync("adb devices", { encoding: "utf8" });
   const outputLines = outputText.trim().split("\n");
-  appLog(`\n$ adb devices\n${outputText.trim()}\n `);
+  stdWrite(`$ adb devices\n${outputText.trim()}\n `);
 
   const devices = outputLines
     .slice(1)
@@ -16,7 +16,7 @@ export function checkAdbDevice(serial: string) {
   const validDevices = devices.filter((device) => !device.includes("offline"));
 
   if (validDevices.length === 0) {
-    appLog(chalk.red("No adb device connected"));
+    stdWrite(chalk.red("No adb device connected\n"));
     exitProcess(1);
   }
 
@@ -25,36 +25,36 @@ export function checkAdbDevice(serial: string) {
       (device) => serial === device.split("\t")[0]
     );
     if (!exist) {
-      appLog(chalk.red(`The device with serial ${serial} not connected.\n`));
+      stdWrite(chalk.red(`The device with serial ${serial} not connected.\n`));
       exitProcess(1);
     }
   } else if (process.env.ANDROID_SERIAL) {
-    appLog(
+    stdWrite(
       `Environment Variable ${chalk.yellow("ANDROID_SERIAL")}: ${
         process.env.ANDROID_SERIAL
-      }`
+      }\n`
     );
     const exist = validDevices.find(
       (device) => process.env.ANDROID_SERIAL === device.split("\t")[0]
     );
     if (!exist) {
-      appLog(
+      stdWrite(
         chalk.red(`The device with serial ${
           process.env.ANDROID_SERIAL
         } is not connected.
 Please check the device serial or unset the ${chalk.yellow(
           "ANDROID_SERIAL"
-        )} env`)
+        )} env\n`)
       );
       exitProcess(1);
     }
   } else if (devices.length > 1) {
-    appLog(
+    stdWrite(
       `Multiple adb devices detected, will use the first device.\n` +
-        `You can also use --serial <SERIAL> to specify device`
+        `You can also use --serial <SERIAL> to specify device\n`
     );
     const [firstDevice] = validDevices[0].split("\t");
-    appLog(chalk.green(`Using adb device: ${firstDevice}`));
+    stdWrite(chalk.green(`Using adb device: ${firstDevice}\n`));
     process.env.ANDROID_SERIAL = firstDevice;
   }
 }
@@ -84,12 +84,12 @@ export function listenAdbLogCat(params: {
   });
 
   adbProcess.stderr.on("data", (data) => {
-    appLogError(`stderr: ${data}`);
+    stdWrite(`stderr: ${data}`);
   });
 
   adbProcess.on("close", (code) => {
     const errorMsg = `\n${chalk.red(`adb process exited with code ${code}`)}\n`;
-    appLogError(errorMsg);
+    stdWrite(errorMsg);
     exitProcess(1);
   });
 }

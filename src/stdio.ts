@@ -3,7 +3,7 @@ import readline from "readline";
 export const stdWrite = process.stdout.write.bind(process.stdout);
 export const stderrWrite = process.stderr.write.bind(process.stderr);
 
-export function muteStdio() {
+export function muteJsConsole() {
   process.stdout.write = () => true;
   process.stderr.write = () => true;
 }
@@ -16,13 +16,7 @@ function restoreStdio() {
 export function appLog(...args: any) {
   restoreStdio();
   console.log(...args);
-  muteStdio();
-}
-
-export function appLogError(...args: any) {
-  restoreStdio();
-  console.error(...args);
-  muteStdio();
+  muteJsConsole();
 }
 
 // @ts-ignore

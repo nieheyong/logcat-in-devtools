@@ -1,6 +1,6 @@
 {
   "name": "logcat-in-devtools",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "View android adb logcat logs in chrome devtools console",
   "homepage": "https://github.com/nieheyong/logcat-in-devtools.git",
   "repository": {

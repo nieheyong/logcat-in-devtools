@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { appLogError } from "./stdio";
+import { stdWrite } from "./stdio";
 
 export function openInChrome(url: string) {
   let command;
@@ -13,7 +13,7 @@ export function openInChrome(url: string) {
 
   exec(command!, (err) => {
     if (err) {
-      appLogError("Failed to open URL in Chrome:", err);
+      stdWrite("Failed to open URL in Chrome\n");
     }
   });
 }

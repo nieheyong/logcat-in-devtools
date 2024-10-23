@@ -4,13 +4,13 @@ import { program } from "commander";
 
 import { checkAdbDevice, listenAdbLogCat, styleLogcatLine } from "./adb";
 import {
-  muteStdio,
+  muteJsConsole,
   vmLog,
   appLog,
-  appLogError,
   listenForKeypress,
   exitProcess,
   stdWrite,
+  stderrWrite,
 } from "./stdio";
 import { openInChrome } from "./utils";
 
@@ -37,8 +37,14 @@ function togglePrint() {
   );
 
   // log in devtools console
-  console.log(statusText);
+  console.log(
+    `[${chalk.yellow(packageJson.name)}] ${statusText} run ${chalk.blueBright(
+      "togglePrint()"
+    )} in console to ${printDisable ? "start" : "stop"}`
+  );
 }
+// @ts-ignore
+globalThis.togglePrint = togglePrint;
 
 function showInspectTips() {
   const shortcutOpen = process.platform !== "win32";
@@ -47,22 +53,25 @@ function showInspectTips() {
   const inspectUrl = `devtools://devtools/bundled/js_app.html?ws=${ws}`;
 
   const tips =
-    `🎉🎉🎉 ${chalk.green("Success!")}\n\n` +
+    `\n🎉🎉🎉 ${chalk.green("Success!")}\n\n` +
     `There are 2 methods to view log: \n` +
     `  A.${
       shortcutOpen ? ` [${chalk.yellow("Ctrl+a")}]` : ""
-    } Visit ${chalk.blue(
+    } Visit ${chalk.blueBright(
       "chrome://inspect"
     )} page in Chrome and inspect Target ${chalk.yellow(
       packageJson.name
     )} to view logs\n` +
     `  B.${
       shortcutOpen ? ` [${chalk.yellow("Ctrl+b")}]` : ""
-    } Open ${chalk.blue(inspectUrl)} in chrome view logs\n\nRunning 🟢 Press ` +
+    } Open ${chalk.blueBright(
+      inspectUrl
+    )} in chrome view logs\n\nRunning 🟢 Press ` +
     chalk.yellow("s") +
     ` to stop print log\n\n`;
 
-  appLog(tips);
+  stdWrite(tips);
+
   if (shortcutOpen) {
     listenForKeypress([
       {
@@ -88,8 +97,8 @@ function showInspectTips() {
 }
 
 function run(cliOptions: CliOptions) {
-  muteStdio();
-  appLog(`\n${chalk.yellow(packageJson.name)}@${packageJson.version}\n `);
+  muteJsConsole();
+  appLog(`${chalk.yellow(packageJson.name)}@${packageJson.version}\n `);
   checkAdbDevice(cliOptions.serial);
 
   if (cliOptions.match) {
@@ -100,8 +109,8 @@ function run(cliOptions: CliOptions) {
     );
   }
 
-  if (!process.features.inspector) {
-    appLogError("Please run with --inspect flag");
+  if (!inspector.url()) {
+    stderrWrite("Please run with --inspect flag");
     exitProcess(1);
   }
 
@@ -114,7 +123,7 @@ function run(cliOptions: CliOptions) {
   });
 }
 
-console.log("");
+stdWrite("\n");
 program
   .name(packageJson.name)
   .description(packageJson.description)
