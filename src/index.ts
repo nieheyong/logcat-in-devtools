@@ -72,28 +72,30 @@ function showInspectTips() {
 
   stdWrite(tips);
 
-  if (shortcutOpen) {
-    listenForKeypress([
-      {
-        ctrl: true,
-        name: "a",
-        action: () => {
-          openInChrome("chrome://inspect");
-        },
-      },
-      {
-        ctrl: true,
-        name: "b",
-        action: () => {
-          openInChrome(inspectUrl);
-        },
-      },
-      {
-        name: "s",
-        action: togglePrint,
-      },
-    ]);
-  }
+  listenForKeypress([
+    {
+      name: "s",
+      action: togglePrint,
+    },
+    ...(shortcutOpen
+      ? [
+          {
+            ctrl: true,
+            name: "a",
+            action: () => {
+              openInChrome("chrome://inspect");
+            },
+          },
+          {
+            ctrl: true,
+            name: "b",
+            action: () => {
+              openInChrome(inspectUrl);
+            },
+          },
+        ]
+      : []),
+  ]);
 }
 
 function run(cliOptions: CliOptions) {
