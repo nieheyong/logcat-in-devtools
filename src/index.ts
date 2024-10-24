@@ -18,6 +18,7 @@ const packageJson = require("../package.json");
 
 let logPattern: RegExp | null = null;
 let printDisable = false;
+let showLog = false;
 
 function processAdbLogLine(log: string) {
   if (printDisable) return;
@@ -25,6 +26,10 @@ function processAdbLogLine(log: string) {
   if (logPattern && !logPattern.test(log)) return;
   const [level, content] = styleLogcatLine(log);
   vmLog(level, content);
+
+  if (showLog) {
+    stdWrite(content + "\n");
+  }
 }
 
 function togglePrint() {
@@ -135,16 +140,19 @@ interface CliOptions {
   clean: boolean;
   match: string;
   serial: string;
+  showLog: boolean;
 }
 
 program
   .option("-c, --clean", "clean logcat buffer before start")
+  .option("-l, --show-log", "also print logcat log in terminal")
   .option("-m, --match <RegExp>", "only print messages that match RegExp")
   .option(
     "-s, --serial <SERIAL>",
     "use device with given serial (overrides $ANDROID_SERIAL)"
   )
   .action((options: CliOptions) => {
+    showLog = options.showLog;
     run(options);
   })
   .parse();
