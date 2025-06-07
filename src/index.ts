@@ -55,7 +55,7 @@ function showInspectTips() {
   const shortcutOpen = process.platform !== "win32";
 
   const ws = encodeURIComponent(inspector.url()?.replace("ws://", "") || "");
-  const inspectUrl = `devtools://devtools/bundled/js_app.html?ws=${ws}`;
+  const inspectUrl = `devtools://devtools/bundled/js_app.html?panel=console&ws=${ws}`;
 
   const tips =
     `\n🎉🎉🎉 ${chalk.green("Success!")}\n\n` +
