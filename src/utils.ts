@@ -4,11 +4,11 @@ import { stdWrite } from "./stdio";
 export function openInChrome(url: string) {
   let command;
   if (process.platform === "win32") {
-    command = `start chrome ${url}`;
+    command = `start chrome "${url}"`;
   } else if (process.platform === "darwin") {
-    command = `open -a "Google Chrome" ${url}`;
+    command = `open -a "Google Chrome" "${url}"`;
   } else if (process.platform === "linux") {
-    command = `google-chrome ${url}`;
+    command = `google-chrome "${url}"`;
   }
 
   exec(command!, (err) => {
